@@ -237,6 +237,8 @@
       [result sendSuccessWithData:@((double)_camera.captureDevice.activeVideoMinFrameDuration.timescale)];
     } else if ([@"getMaxFrameRate" isEqualToString:call.method]) {
       [result sendSuccessWithData:@((double)_camera.captureDevice.activeVideoMaxFrameDuration.timescale)];
+    } else if ([@"setFrameRate" isEqualToString:call.method]){
+      [_camera setFrameRate:((NSUInteger *)call.arguments[@"frameRate"]).unsignedIntegerValue];
     } else if ([@"getExposureOffsetStepSize" isEqualToString:call.method]) {
       [result sendSuccessWithData:@(0.0)];
     } else if ([@"setExposureOffset" isEqualToString:call.method]) {

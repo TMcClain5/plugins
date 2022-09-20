@@ -493,6 +493,14 @@ class AVFoundationCamera extends CameraPlatform {
   }
 
   @override
+  Future<void> setFrameRate(int cameraId, int frameRate) async {
+    await _channel.invokeMethod<double>(
+      'setFrameRate',
+      <String, dynamic>{'cameraId': cameraId, 'frameRate': frameRate},
+    );
+  }
+
+  @override
   Future<void> pausePreview(int cameraId) async {
     await _channel.invokeMethod<double>(
       'pausePreview',

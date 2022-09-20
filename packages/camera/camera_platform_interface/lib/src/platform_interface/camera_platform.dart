@@ -255,6 +255,10 @@ abstract class CameraPlatform extends PlatformInterface {
     throw UnimplementedError('getMaxFrameRate() is not implemented.');
   }
 
+  Future<void> setFrameRate(int cameraId, int frameRate){
+    throw UnimplementedError('setFrameRate() is not implemented');
+  }
+
   /// Pause the active preview on the current frame for the selected camera.
   Future<void> pausePreview(int cameraId) {
     throw UnimplementedError('pausePreview() is not implemented.');

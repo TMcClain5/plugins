@@ -1078,6 +1078,25 @@ NSString *const errorMethod = @"error";
   return YES;
 }
 
+- (void)setFrameRate:(NSUInteger *) frameRate {
+    BOOL isFPSSupported = NO;
+    AVCaptureDeviceFormat *currentFormat = self.captureDevice.activeFormat;
+    for ( AVFrameRateRange *range in currentFormat.videoSupportedFrameRateRanges ) {
+        if ( range.maxFrameRate >= frameRate && range.minFrameRate <= frameRate )        {
+            isFPSSupported = YES;
+            break;
+        }
+    }
+
+    if( isFPSSupported ) {
+        if ( [self.captureDevice lockForConfiguration:NULL] ) {
+            self.captureDevice.activeVideoMaxFrameDuration = CMTimeMake( 1, frameRate );
+            self.captureDevice.activeVideoMinFrameDuration = CMTimeMake( 1, frameRate );
+            [self.captureDevice unlockForConfiguration];
+        }
+    }
+} 
+
 - (void)setCaptureDeviceActiveFormat {
   AVCaptureDeviceFormat* curActiveFormat = self.captureDevice.activeFormat;
   CMVideoDimensions curActiveFormatDims = CMVideoFormatDescriptionGetDimensions(curActiveFormat.formatDescription);

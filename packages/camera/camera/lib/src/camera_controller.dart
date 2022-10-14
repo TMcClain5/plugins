@@ -764,7 +764,6 @@ class CameraController extends ValueNotifier<CameraValue> {
       throw CameraException(e.code, e.message);
     }
   }
-  }
 
   /// Locks the capture orientation.
   ///

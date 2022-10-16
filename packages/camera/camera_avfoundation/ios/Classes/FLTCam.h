@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) void (^onFrameAvailable)(void);
 @property(nonatomic) FLTThreadSafeMethodChannel *methodChannel;
 @property(assign, nonatomic) FLTResolutionPreset resolutionPreset;
+@property(assign, nonatomic) CGFloat desiredFrameRate;
 @property(assign, nonatomic) FLTExposureMode exposureMode;
 @property(assign, nonatomic) FLTFocusMode focusMode;
 @property(assign, nonatomic) FLTFlashMode flashMode;
@@ -97,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getMinZoomLevelWithResult:(FLTThreadSafeFlutterResult *)result;
 - (void)setZoomLevel:(CGFloat)zoom Result:(FLTThreadSafeFlutterResult *)result;
 - (void)setUpCaptureSessionForAudio;
-- (void)setCaptureDeviceActiveFormat:(CGFloat)desiredFrameRate;
+- (void)setCaptureDeviceActiveFormat;
 
 @end
 

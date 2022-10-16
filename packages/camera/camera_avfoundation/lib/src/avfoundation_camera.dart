@@ -94,7 +94,8 @@ class AVFoundationCamera extends CameraPlatform {
   @override
   Future<int> createCamera(
     CameraDescription cameraDescription,
-    ResolutionPreset? resolutionPreset, {
+    ResolutionPreset? resolutionPreset,
+    int? desiredFrameRate, {
     bool enableAudio = false,
   }) async {
     try {
@@ -104,6 +105,7 @@ class AVFoundationCamera extends CameraPlatform {
         'resolutionPreset': resolutionPreset != null
             ? _serializeResolutionPreset(resolutionPreset)
             : null,
+        'desiredFrameRate': desiredFrameRate,
         'enableAudio': enableAudio,
       });
 
@@ -471,7 +473,7 @@ class AVFoundationCamera extends CameraPlatform {
     }
   }
 
-   @override
+  @override
   Future<double> getMaxFrameRate(int cameraId) async {
     final double? maxFrameRate = await _channel.invokeMethod<double>(
       'getMaxFrameRate',

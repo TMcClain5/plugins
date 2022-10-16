@@ -125,6 +125,7 @@ NSString *const errorMethod = @"error";
   }
   _enableAudio = enableAudio;
   _captureSessionQueue = captureSessionQueue;
+    _desiredFrameRate = desiredFrameRate;
   _pixelBufferSynchronizationQueue =
       dispatch_queue_create("io.flutter.camera.pixelBufferSynchronizationQueue", NULL);
   _photoIOQueue = dispatch_queue_create("io.flutter.camera.photoIOQueue", NULL);
@@ -1081,14 +1082,14 @@ NSString *const errorMethod = @"error";
   return YES;
 }
 
-- (void)setCaptureDeviceActiveFormat:(CGFloat) desiredFrameRate{
+- (void)setCaptureDeviceActiveFormat{
+    CGFloat desiredFrameRate = self.desiredFrameRate;
     AVCaptureDeviceFormat* curActiveFormat = self.captureDevice.activeFormat;
     CMVideoDimensions curActiveFormatDims = CMVideoFormatDescriptionGetDimensions(curActiveFormat.formatDescription);
     FourCharCode curActiveFormatMediaSubType = CMFormatDescriptionGetMediaSubType(curActiveFormat.formatDescription);
     NSLog(@"Default active format: %@", curActiveFormat.description);
     double maxFrameRate = curActiveFormat.videoSupportedFrameRateRanges.firstObject.maxFrameRate;
     int maxIndex = -1;
-    NSLog(@"captureDevice Formats: %@", self.captureDevice.formats);
     
     for (int i = 0; i < self.captureDevice.formats.count; i++) {
         AVCaptureDeviceFormat* format = self.captureDevice.formats[i];
@@ -1104,7 +1105,6 @@ NSString *const errorMethod = @"error";
         if (formatMaxFrameRate == desiredFrameRate) {
             maxIndex = i;
             maxFrameRate = formatMaxFrameRate;
-            NSLog(@"maxFrameRates: %f", maxFrameRate);
         }
     }
     if (maxIndex >= 0) {

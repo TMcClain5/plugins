@@ -648,6 +648,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     final CameraController cameraController = CameraController(
       cameraDescription,
       kIsWeb ? ResolutionPreset.max : ResolutionPreset.medium,
+      30,
       enableAudio: enableAudio,
       imageFormatGroup: ImageFormatGroup.jpeg,
     );

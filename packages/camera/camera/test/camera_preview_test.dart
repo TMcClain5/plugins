@@ -53,6 +53,15 @@ class FakeController extends ValueNotifier<CameraValue>
   Future<double> getMinZoomLevel() async => 1.0;
 
   @override
+  Future<double> getMaxFrameRate() async => 30.0;
+
+  @override
+  Future<double> getMinFrameRate() async => 30.0;
+
+  @override
+  Future<double> setFrameRate() async => 30.0;
+
+  @override
   ImageFormatGroup? get imageFormatGroup => null;
 
   @override
@@ -117,6 +126,10 @@ class FakeController extends ValueNotifier<CameraValue>
 
   @override
   Future<void> resumePreview() async {}
+
+  @override
+  // TODO: implement desiredFrameRate
+  int get desiredFrameRate => throw UnimplementedError();
 }
 
 void main() {

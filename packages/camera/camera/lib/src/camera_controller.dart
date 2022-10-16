@@ -226,7 +226,8 @@ class CameraController extends ValueNotifier<CameraValue> {
   /// Creates a new camera controller in an uninitialized state.
   CameraController(
     this.description,
-    this.resolutionPreset, {
+    this.resolutionPreset,
+    this.desiredFrameRate, {
     this.enableAudio = true,
     this.imageFormatGroup,
   }) : super(const CameraValue.uninitialized());
@@ -241,6 +242,9 @@ class CameraController extends ValueNotifier<CameraValue> {
   ///
   /// See also: [ResolutionPreset].
   final ResolutionPreset resolutionPreset;
+
+  /// Desired Frame Rate of video recording
+  final int desiredFrameRate;
 
   /// Whether to include audio when recording a video.
   final bool enableAudio;
@@ -296,6 +300,7 @@ class CameraController extends ValueNotifier<CameraValue> {
       _cameraId = await CameraPlatform.instance.createCamera(
         description,
         resolutionPreset,
+        desiredFrameRate,
         enableAudio: enableAudio,
       );
 

@@ -93,12 +93,14 @@ NSString *const errorMethod = @"error";
 
 - (instancetype)initWithCameraName:(NSString *)cameraName
                   resolutionPreset:(NSString *)resolutionPreset
+                  desiredFrameRate:(CGFloat)desiredFrameRate
                        enableAudio:(BOOL)enableAudio
                        orientation:(UIDeviceOrientation)orientation
                captureSessionQueue:(dispatch_queue_t)captureSessionQueue
                              error:(NSError **)error {
   return [self initWithCameraName:cameraName
                  resolutionPreset:resolutionPreset
+                 desiredFrameRate:desiredFrameRate
                       enableAudio:enableAudio
                       orientation:orientation
                    captureSession:[[AVCaptureSession alloc] init]
@@ -108,6 +110,7 @@ NSString *const errorMethod = @"error";
 
 - (instancetype)initWithCameraName:(NSString *)cameraName
                   resolutionPreset:(NSString *)resolutionPreset
+                  desiredFrameRate:(CGFloat)desiredFrameRate
                        enableAudio:(BOOL)enableAudio
                        orientation:(UIDeviceOrientation)orientation
                     captureSession:(AVCaptureSession *)captureSession
@@ -1078,54 +1081,38 @@ NSString *const errorMethod = @"error";
   return YES;
 }
 
-- (void)setFrameRate:(NSUInteger *) frameRate {
-    BOOL isFPSSupported = NO;
-    AVCaptureDeviceFormat *currentFormat = self.captureDevice.activeFormat;
-    for ( AVFrameRateRange *range in currentFormat.videoSupportedFrameRateRanges ) {
-        if ( range.maxFrameRate >= frameRate && range.minFrameRate <= frameRate )        {
-            isFPSSupported = YES;
-            break;
+- (void)setCaptureDeviceActiveFormat:(CGFloat) desiredFrameRate{
+    AVCaptureDeviceFormat* curActiveFormat = self.captureDevice.activeFormat;
+    CMVideoDimensions curActiveFormatDims = CMVideoFormatDescriptionGetDimensions(curActiveFormat.formatDescription);
+    FourCharCode curActiveFormatMediaSubType = CMFormatDescriptionGetMediaSubType(curActiveFormat.formatDescription);
+    NSLog(@"Default active format: %@", curActiveFormat.description);
+    double maxFrameRate = curActiveFormat.videoSupportedFrameRateRanges.firstObject.maxFrameRate;
+    int maxIndex = -1;
+    NSLog(@"captureDevice Formats: %@", self.captureDevice.formats);
+    
+    for (int i = 0; i < self.captureDevice.formats.count; i++) {
+        AVCaptureDeviceFormat* format = self.captureDevice.formats[i];
+        CMVideoDimensions formatDims = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
+        if (formatDims.width != curActiveFormatDims.width || formatDims.height != curActiveFormatDims.height) {
+            continue;
+        }
+        FourCharCode formatMediaSubType = CMFormatDescriptionGetMediaSubType(format.formatDescription);
+        if (formatMediaSubType != curActiveFormatMediaSubType) {
+            continue;
+        }
+        double formatMaxFrameRate = format.videoSupportedFrameRateRanges.firstObject.maxFrameRate;
+        if (formatMaxFrameRate == desiredFrameRate) {
+            maxIndex = i;
+            maxFrameRate = formatMaxFrameRate;
+            NSLog(@"maxFrameRates: %f", maxFrameRate);
         }
     }
-
-    if( isFPSSupported ) {
-        if ( [self.captureDevice lockForConfiguration:NULL] ) {
-            self.captureDevice.activeVideoMaxFrameDuration = CMTimeMake( 1, frameRate );
-            self.captureDevice.activeVideoMinFrameDuration = CMTimeMake( 1, frameRate );
-            [self.captureDevice unlockForConfiguration];
-        }
+    if (maxIndex >= 0) {
+        [self.captureDevice lockForConfiguration:nil];
+        self.captureDevice.activeFormat = self.captureDevice.formats[maxIndex];
+        [self.captureDevice unlockForConfiguration];
     }
-} 
-
-- (void)setCaptureDeviceActiveFormat {
-  AVCaptureDeviceFormat* curActiveFormat = self.captureDevice.activeFormat;
-  CMVideoDimensions curActiveFormatDims = CMVideoFormatDescriptionGetDimensions(curActiveFormat.formatDescription);
-  FourCharCode curActiveFormatMediaSubType = CMFormatDescriptionGetMediaSubType(curActiveFormat.formatDescription);
-  NSLog(@"Default active format: %@", curActiveFormat.description);
-  double maxFrameRate = curActiveFormat.videoSupportedFrameRateRanges.firstObject.maxFrameRate;
-  int maxIndex = -1;
-  for (int i = 0; i < self.captureDevice.formats.count; i++) {
-    AVCaptureDeviceFormat* format = self.captureDevice.formats[i];
-    CMVideoDimensions formatDims = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
-    if (formatDims.width != curActiveFormatDims.width || formatDims.height != curActiveFormatDims.height) {
-      continue;
-    }
-    FourCharCode formatMediaSubType = CMFormatDescriptionGetMediaSubType(format.formatDescription);
-    if (formatMediaSubType != curActiveFormatMediaSubType) {
-      continue;
-    }
-    double formatMaxFrameRate = format.videoSupportedFrameRateRanges.firstObject.maxFrameRate;
-    if (formatMaxFrameRate > maxFrameRate) {
-      maxIndex = i;
-      maxFrameRate = formatMaxFrameRate;
-    }
-  }
-  if (maxIndex >= 0) {
-    [self.captureDevice lockForConfiguration:nil];
-    self.captureDevice.activeFormat = self.captureDevice.formats[maxIndex];
-    [self.captureDevice unlockForConfiguration];
-  }
-  NSLog(@"Final active format: %@", self.captureDevice.activeFormat.description);
+    NSLog(@"Final active format: %@", self.captureDevice.activeFormat.description);
 }
 
 

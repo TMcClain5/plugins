@@ -158,7 +158,7 @@
     if ([@"initialize" isEqualToString:call.method]) {
       NSString *videoFormatValue = ((NSString *)argsMap[@"imageFormatGroup"]);
       [_camera setVideoFormat:FLTGetVideoFormatFromString(videoFormatValue)];
-      [_camera setCaptureDeviceActiveFormat];
+      [_camera setCaptureDeviceActiveFormat:(60.0)];
 
       __weak CameraPlugin *weakSelf = self;
       _camera.onFrameAvailable = ^{
@@ -237,8 +237,6 @@
       [result sendSuccessWithData:@((double)_camera.captureDevice.activeVideoMinFrameDuration.timescale)];
     } else if ([@"getMaxFrameRate" isEqualToString:call.method]) {
       [result sendSuccessWithData:@((double)_camera.captureDevice.activeVideoMaxFrameDuration.timescale)];
-    } else if ([@"setFrameRate" isEqualToString:call.method]){
-      [_camera setFrameRate:((NSUInteger *)call.arguments[@"frameRate"]).unsignedIntegerValue];
     } else if ([@"getExposureOffsetStepSize" isEqualToString:call.method]) {
       [result sendSuccessWithData:@(0.0)];
     } else if ([@"setExposureOffset" isEqualToString:call.method]) {
@@ -312,14 +310,16 @@
 
     NSString *cameraName = createMethodCall.arguments[@"cameraName"];
     NSString *resolutionPreset = createMethodCall.arguments[@"resolutionPreset"];
-    NSNumber *enableAudio = createMethodCall.arguments[@"enableAudio"];
+      NSNumber *desiredFrameRate = createMethodCall.arguments[@"desiredFrameRate"];
+      NSNumber *enableAudio = createMethodCall.arguments[@"enableAudio"];
     NSError *error;
-    FLTCam *cam = [[FLTCam alloc] initWithCameraName:cameraName
-                                    resolutionPreset:resolutionPreset
-                                         enableAudio:[enableAudio boolValue]
-                                         orientation:[[UIDevice currentDevice] orientation]
-                                 captureSessionQueue:strongSelf.captureSessionQueue
-                                               error:&error];
+      FLTCam *cam = [[FLTCam alloc] initWithCameraName:cameraName
+                                      resolutionPreset:resolutionPreset
+                                      desiredFrameRate:[desiredFrameRate doubleValue]
+                                           enableAudio:[enableAudio boolValue]
+                                           orientation:[[UIDevice currentDevice] orientation]
+                                   captureSessionQueue:strongSelf.captureSessionQueue
+                                                 error:&error];
 
     if (error) {
       [result sendError:error];

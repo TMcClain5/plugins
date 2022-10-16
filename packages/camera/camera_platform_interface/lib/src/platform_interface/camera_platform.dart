@@ -49,7 +49,8 @@ abstract class CameraPlatform extends PlatformInterface {
   /// Creates an uninitialized camera instance and returns the cameraId.
   Future<int> createCamera(
     CameraDescription cameraDescription,
-    ResolutionPreset? resolutionPreset, {
+    ResolutionPreset? resolutionPreset,
+    int? desiredFrameRate, {
     bool enableAudio = false,
   }) {
     throw UnimplementedError('createCamera() is not implemented.');
@@ -256,7 +257,7 @@ abstract class CameraPlatform extends PlatformInterface {
     throw UnimplementedError('getMaxFrameRate() is not implemented.');
   }
 
-  Future<void> setFrameRate(int cameraId, int frameRate){
+  Future<void> setFrameRate(int cameraId, int frameRate) {
     throw UnimplementedError('setFrameRate() is not implemented');
   }
 

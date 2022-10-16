@@ -86,7 +86,8 @@ class MethodChannelCamera extends CameraPlatform {
   @override
   Future<int> createCamera(
     CameraDescription cameraDescription,
-    ResolutionPreset? resolutionPreset, {
+    ResolutionPreset? resolutionPreset,
+    int? desiredFrameRate, {
     bool enableAudio = false,
   }) async {
     try {

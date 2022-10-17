@@ -94,7 +94,8 @@ class AndroidCamera extends CameraPlatform {
   @override
   Future<int> createCamera(
     CameraDescription cameraDescription,
-    ResolutionPreset? resolutionPreset, {
+    ResolutionPreset? resolutionPreset,
+    int? desiredFrameRate, {
     bool enableAudio = false,
   }) async {
     try {
@@ -466,7 +467,7 @@ class AndroidCamera extends CameraPlatform {
     }
   }
 
-    @override
+  @override
   Future<double> getMaxFrameRate(int cameraId) async {
     final double? maxFrameRate = await _channel.invokeMethod<double>(
       'getMaxFrameRate',

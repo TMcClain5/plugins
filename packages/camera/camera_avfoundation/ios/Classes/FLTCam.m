@@ -1101,7 +1101,7 @@ NSString *const errorMethod = @"error";
         if (formatMediaSubType != curActiveFormatMediaSubType) {
             continue;
         }
-        if (!format.isVideoStabilizationSupported) {
+        if (![format isVideoStabilizationModeSupported:AVCaptureVideoStabilizationModeStandard]) {
             continue;
         }
         double formatMaxFrameRate = format.videoSupportedFrameRateRanges.firstObject.maxFrameRate;

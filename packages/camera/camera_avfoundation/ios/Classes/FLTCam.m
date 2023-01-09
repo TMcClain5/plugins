@@ -386,7 +386,7 @@ NSString *const errorMethod = @"error";
 - (void)captureOutput:(AVCaptureOutput *)output
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection {
-  if (output == _captureVideoOutput) {
+  if (output == _captureVideoOutput && connection.isVideoOrientationSupported) {
     CVPixelBufferRef newBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     CFRetain(newBuffer);
 
@@ -491,12 +491,13 @@ NSString *const errorMethod = @"error";
     CFRetain(sampleBuffer);
     CMTime currentSampleTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
 
-    if (_videoWriter.status != AVAssetWriterStatusWriting) {
+    if (_videoWriter.status != AVAssetWriterStatusWriting && connection.isVideoOrientationSupported) {
       [_videoWriter startWriting];
       [_videoWriter startSessionAtSourceTime:currentSampleTime];
     }
 
     if (output == _captureVideoOutput) {
+        _isVideoFrameAvailable = YES; //making it true
       if (_videoIsDisconnected) {
         _videoIsDisconnected = NO;
 
@@ -516,33 +517,35 @@ NSString *const errorMethod = @"error";
       CMTime nextSampleTime = CMTimeSubtract(_lastVideoSampleTime, _videoTimeOffset);
       [_videoAdaptor appendPixelBuffer:nextBuffer withPresentationTime:nextSampleTime];
     } else {
-      CMTime dur = CMSampleBufferGetDuration(sampleBuffer);
-
-      if (dur.value > 0) {
-        currentSampleTime = CMTimeAdd(currentSampleTime, dur);
-      }
-
-      if (_audioIsDisconnected) {
-        _audioIsDisconnected = NO;
-
-        if (_audioTimeOffset.value == 0) {
-          _audioTimeOffset = CMTimeSubtract(currentSampleTime, _lastAudioSampleTime);
-        } else {
-          CMTime offset = CMTimeSubtract(currentSampleTime, _lastAudioSampleTime);
-          _audioTimeOffset = CMTimeAdd(_audioTimeOffset, offset);
+        if(_isVideoFrameAvailable){
+            CMTime dur = CMSampleBufferGetDuration(sampleBuffer);
+            
+            if (dur.value > 0) {
+                currentSampleTime = CMTimeAdd(currentSampleTime, dur);
+            }
+            
+            if (_audioIsDisconnected) {
+                _audioIsDisconnected = NO;
+                
+                if (_audioTimeOffset.value == 0) {
+                    _audioTimeOffset = CMTimeSubtract(currentSampleTime, _lastAudioSampleTime);
+                } else {
+                    CMTime offset = CMTimeSubtract(currentSampleTime, _lastAudioSampleTime);
+                    _audioTimeOffset = CMTimeAdd(_audioTimeOffset, offset);
+                }
+                
+                return;
+            }
+            
+            _lastAudioSampleTime = currentSampleTime;
+            
+            if (_audioTimeOffset.value != 0) {
+                CFRelease(sampleBuffer);
+                sampleBuffer = [self adjustTime:sampleBuffer by:_audioTimeOffset];
+            }
+            
+            [self newAudioSample:sampleBuffer];
         }
-
-        return;
-      }
-
-      _lastAudioSampleTime = currentSampleTime;
-
-      if (_audioTimeOffset.value != 0) {
-        CFRelease(sampleBuffer);
-        sampleBuffer = [self adjustTime:sampleBuffer by:_audioTimeOffset];
-      }
-
-      [self newAudioSample:sampleBuffer];
     }
 
     CFRelease(sampleBuffer);

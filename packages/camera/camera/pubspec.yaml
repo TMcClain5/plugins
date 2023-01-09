@@ -26,9 +26,10 @@ dependencies:
       url: https://github.com/TMcClain5/plugins
       path: packages/camera/camera_android
   camera_avfoundation: 
-    git:
-      url: https://github.com/TMcClain5/plugins
-      path: packages/camera/camera_avfoundation
+    path: ../camera_avfoundation
+    #git:
+    #  url: https://github.com/TMcClain5/plugins
+    #  path: packages/camera/camera_avfoundation
   camera_platform_interface: 
     git:
       url: https://github.com/TMcClain5/plugins
